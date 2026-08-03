@@ -1,0 +1,16 @@
+## .NET / Visual Studio
+bin/
+obj/
+.vs/
+*.user
+*.suo
+*.cache
+*.log
+*.tmp
+
+## Build outputs
+**/bin/
+**/obj/
+
+## Local settings
+appsettings.Development.local.json
