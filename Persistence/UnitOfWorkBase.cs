@@ -7,22 +7,24 @@ using System.Linq;
 using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
+using static Persistence.QueryUnitBase;
 
 namespace Persistence
 {
-    public abstract class UnitOfWorkBase : DbContext, IUnitOfWorkSync
+    public abstract class UnitOfWorkBase : QueryUnitBase, IUnitOfWorkSync
     {
         public UnitOfWorkBase(DbContextOptions options)
             : base(options)
         {
         }
 
-        private readonly IDictionary<Type, object> _dataQueries = new Dictionary<Type, object>();
-
-        public event EventHandler<EntityEventArgs> EntityMaterialized;
         public event EventHandler<EntityEventArgs> EntityCreate;
         public event EventHandler<EntityEventArgs> EntityUpdate;
         public event EventHandler<EntityEventArgs> EntityDelete;
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+        }
 
         public override int SaveChanges()
         {
@@ -51,23 +53,6 @@ namespace Persistence
             }
         }
 
-        public void Execute(string command, params object[] parameters)
-        {
-            //Database.ExecuteSqlRaw(command, parameters);
-        }
-
-        public IDataQuery<T> Read<T>() where T : EntityBase
-        {
-            var entityType = typeof(T);
-            if (_dataQueries.ContainsKey(entityType))
-                return (IDataQuery<T>)_dataQueries[entityType];
-
-            var dataQuery = new DataQuery<T>(new DbSetQueryAdapter<T>(this));
-            _dataQueries.Add(entityType, dataQuery);
-
-            return dataQuery;
-        }
-
         public void MarkNew<T>(T entity) where T : EntityBase
         {
             Set<T>().Add(entity);
@@ -93,26 +78,5 @@ namespace Persistence
         {
             SaveChanges();
         }
-    }
-
-    internal class DbSetQueryAdapter<T> : DelegateQueryAdapter<T> where T : EntityBase
-    {
-        public DbSetQueryAdapter(DbContext dbContext)
-            : base
-            (
-                /* read */
-                (predicate) =>
-                {
-                    return dbContext.Set<T>().Where(predicate);
-                },
-
-                /* read - command */
-                (command, parameters) =>
-                {
-                    //return dbContext.Set<T>().FromSqlRaw(command, parameters).AsQueryable();
-                    return Enumerable.Empty<T>().AsQueryable();
-                }
-            )
-        { }
     }
 }

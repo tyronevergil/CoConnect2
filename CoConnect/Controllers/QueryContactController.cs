@@ -9,11 +9,11 @@ namespace CoConnect.Controllers
     [Route("api/query/contacts")]
     public class QueryContactController : ControllerBase
     {
-        private readonly IDataContextFactory _dataContextFactory;
+        private readonly IQueryContextFactory _queryContextFactory;
 
-        public QueryContactController(IDataContextFactory dataContextFactory)
+        public QueryContactController(IQueryContextFactory queryContextFactory)
         {
-            _dataContextFactory = dataContextFactory;
+            _queryContextFactory = queryContextFactory;
         }
 
         [HttpGet]
@@ -21,9 +21,9 @@ namespace CoConnect.Controllers
         {
             List<Contact> contacts;
 
-            using (var dataContext = _dataContextFactory.CreateDataContext())
+            using (var queryContext = _queryContextFactory.CreateQueryContext())
             {
-                var result = await dataContext.FindAsync(ContactSpecs.GetAll());
+                var result = await queryContext.FindAsync(ContactSpecs.GetAll());
                 contacts = result?.ToList() ?? new List<Contact>();
             }
 
@@ -35,9 +35,9 @@ namespace CoConnect.Controllers
         {
             Contact? contact;
 
-            using (var dataContext = _dataContextFactory.CreateDataContext())
+            using (var queryContext = _queryContextFactory.CreateQueryContext())
             {
-                contact = await dataContext.FindSingleAsync(ContactSpecs.Get(id));
+                contact = await queryContext.FindSingleAsync(ContactSpecs.Get(id));
             }
 
             if (contact == null)

@@ -20,6 +20,7 @@ namespace CoConnect
             builder.Services.AddSignalR();
 
             builder.Services.AddDbContextFactory<UnitOfWorkInMemory>(options => options.UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString()));
+            builder.Services.AddSingleton<IQueryContextFactory, QueryContextFactory<UnitOfWorkInMemory>>();
             builder.Services.AddSingleton<IDataContextFactory, DataContextFactory<UnitOfWorkInMemory>>();
 
             builder.Services.AddSingleton<MessageQueue>();

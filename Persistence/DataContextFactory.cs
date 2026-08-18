@@ -24,14 +24,9 @@ namespace Persistence
 
         public DataContext CreateDataContext()
         {
-            return new DataContext(_factory.CreateDbContext());
+            var context = _factory.CreateDbContext();
+            context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
+            return new DataContext(context);
         }
-    }
-
-    public class DataContext : DataContextBase
-    {
-        internal DataContext(UnitOfWorkBase unitOfWork)
-            : base(unitOfWork)
-        {}
     }
 }
