@@ -3,9 +3,10 @@ using CoConnect.Domain.Handlers;
 using CoConnect.Infrastructure;
 using CoConnect.Infrastructure.Queue;
 using CoConnect.Infrastructure.Service;
+using CoConnect.Infrastructure.QueryRouting;
 using Microsoft.EntityFrameworkCore;
-using SimpleBus;
 using Persistence;
+using SimpleBus;
 
 namespace CoConnect
 {
@@ -22,6 +23,8 @@ namespace CoConnect
             builder.Services.AddDbContextFactory<UnitOfWorkInMemory>(options => options.UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString()));
             builder.Services.AddSingleton<IQueryContextFactory, QueryContextFactory<UnitOfWorkInMemory>>();
             builder.Services.AddSingleton<IDataContextFactory, DataContextFactory<UnitOfWorkInMemory>>();
+            builder.Services.AddSingleton<QueryRouteRegistry>();
+            builder.Services.AddSingleton<QueryRouteExecutor>();
 
             builder.Services.AddSingleton<MessageQueue>();
             builder.Services.AddHostedService<MessageQueueWorker>();
@@ -63,6 +66,8 @@ namespace CoConnect
             app.UseStaticFiles();
 
             app.UseRouting();
+
+            app.UseMiddleware<QueryMiddleware>();
 
             app.UseAuthorization();
 

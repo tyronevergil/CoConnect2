@@ -15,9 +15,11 @@ namespace CoConnect.Infrastructure
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Contact>().HasData(
-                    new Contact { ContactId = "1", Lastname = "Roson", Firstname = "Tyrone" }
-                );
+            modelBuilder.Entity<Contact>();
+
+            //modelBuilder.Entity<Contact>().HasData(
+            //        new Contact { ContactId = "1", Lastname = "Roson", Firstname = "Tyrone" }
+            //    );
         }
     }
 }

@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CoConnect.Domain\CoConnect.Domain.csproj" />
+    <ProjectReference Include="..\QueryRouting\QueryRouting.csproj" />
     <ProjectReference Include="..\Persistence\Persistence.csproj" />
     <ProjectReference Include="..\SimpleBus\SimpleBus.csproj" />
   </ItemGroup>

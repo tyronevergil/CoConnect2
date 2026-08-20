@@ -1,4 +1,5 @@
-﻿using CrudDatastore;
+﻿using QueryRouting;
+using CrudDatastore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,11 +15,13 @@ namespace Persistence.Specifications
             : base(predicate)
         { }
 
+        [QueryRoute("GET", "/api/query/contacts/{id}", QueryRouteResultKind.Single)]
         public static ContactSpecs Get(string contactId)
         {
             return new ContactSpecs(p => p.ContactId == contactId);
         }
 
+        [QueryRoute("GET", "/api/query/contacts", QueryRouteResultKind.Collection)]
         public static ContactSpecs GetAll()
         {
             return new ContactSpecs(p => true);
