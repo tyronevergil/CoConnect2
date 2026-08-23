@@ -16,6 +16,7 @@ Use these rules as the default:
 - Keep persistence concerns behind the domain boundary.
 - Prefer command-driven workflows for state changes.
 - Prefer event-driven updates when the UI should react in real time.
+- Prefer event-handler orchestration when a workflow must also drive UI notifications or auth/session decisions.
 
 ## 2. Layering Rules
 
@@ -90,8 +91,10 @@ Every feature should follow the same shape:
 6. Implement the server-side command/query pipeline.
 7. Persist data using the existing persistence conventions.
 8. Publish an event if the UI should update in real time.
+9. Use event handlers to coordinate follow-up concerns such as SignalR notifications and, for auth-sensitive flows, cookie/session decisions.
+10. Surface auth/session outcomes to the browser through a dedicated client event such as app.signout when the UI must react before redirecting.
 
-This pattern should be treated as the default implementation model for new work.
+This pattern should be treated as the default implementation model for new work, including Contacts-style CRUD and maintenance screens.
 
 ## 4. Frontend Standards
 
@@ -103,6 +106,8 @@ The client-side bootstrap files are the application shell.
 - app-start.js contains shared helpers and runtime behavior
 - signalr-hub.js manages SignalR subscriptions and connection lifecycle
 
+The shared runtime is also the place for global client events such as app.error, app.info, and auth/session notifications like app.signout.
+
 ### Required helper usage
 
 Use these helpers instead of ad hoc implementations:
@@ -112,12 +117,18 @@ Use these helpers instead of ad hoc implementations:
 - app.post for command submission
 - app.showToast for user feedback
 - app.showConfirm for confirmation flows
+- app.on for subscribing to shared runtime and feature events
+
+Auth/session events such as app.signout may show a modal before redirecting or logging the user out.
 
 ### Feature script rules
 
 - Keep feature-specific script logic near the view that uses it.
 - Do not duplicate shared UI helpers across pages.
 - Do not build page behavior directly against raw jQuery or manual fetch code when the shared app helpers already exist.
+- Subscribe to auth/session client events in app-start.js or the relevant shared bootstrap layer when the reaction is global.
+- Use a dedicated event such as app.signout when the browser must react to a server-auth/session decision before redirecting.
+
 
 ## 5. Backend Standards
 
@@ -144,6 +155,13 @@ Every command handler should:
 - use the persistence layer when data changes are required
 - publish an event when the outcome should be visible to the UI
 - log meaningful failures and notify the client when appropriate
+
+Every event handler should:
+
+- react to one outcome-oriented event
+- coordinate any follow-up UI notification flow through SignalR when needed
+- coordinate auth/session decisions for sensitive workflows when needed
+- avoid performing unrelated persistence work unless the event specifically requires it
 
 ### Services
 
@@ -177,6 +195,7 @@ Rules:
 - use outcome-oriented names such as ContactCreated or FeatureCreated
 - stay minimal and focused on what the client needs to know
 - be used to trigger UI updates through SignalR when appropriate
+- serve as the handoff point for any event-handler orchestration that must react to the command result
 
 ### Event payloads
 
@@ -236,6 +255,7 @@ For create, update, and delete flows:
 - verify the target exists where required
 - save changes through the persistence context
 - publish an event after successful mutation when the UI should react
+- let event handlers coordinate UI notification and auth/session follow-up when required
 
 ## 9. Naming Conventions
 
@@ -259,8 +279,9 @@ When adding a new feature, follow this checklist:
 6. Implement the command or query handling path.
 7. Add or update persistence logic where needed.
 8. Publish an event if the UI should update in real time.
-9. Reuse shared client helpers rather than introducing new patterns.
-10. Keep the implementation aligned with the existing architectural shape.
+9. Add event-handler orchestration when the workflow needs SignalR or auth/session follow-up.
+10. Reuse shared client helpers rather than introducing new patterns.
+11. Keep the implementation aligned with the existing architectural shape, including Contacts-style maintenance flows.
 
 ## 11. Guiding Principle
 

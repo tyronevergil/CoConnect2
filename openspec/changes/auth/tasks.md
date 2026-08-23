@@ -14,17 +14,18 @@
 
 ## 3. User maintenance and CQRS flow
 
-- [ ] 3.1 Add `UsersController` routes for query and command actions
-- [ ] 3.2 Bridge `UsersController` to the persistent user store
-- [ ] 3.3 Keep the user maintenance flow aligned with the Contacts CQRS pattern
-- [ ] 3.4 Add disable/enable and role update commands as needed
-- [ ] 3.5 Add an orchestration handler for `UserUpdate`, `UserDisable`, and `UserDelete`
+- [ ] 3.1 Add a user-maintenance page shell with JavaScript-driven query and command calls
+- [ ] 3.2 Bridge user maintenance commands to the persistent user store
+- [ ] 3.3 Keep the user maintenance flow aligned with the Contacts page-shell and JavaScript pattern
+- [ ] 3.4 Add create/update/disable/delete commands as needed
+- [ ] 3.5 Publish `UserCreated`, `UserUpdated`, `UserDisabled`, and `UserDeleted` events after successful user commands
+- [ ] 3.6 Add event-handler orchestration for auth-sensitive user session decisions, SignalR notifications, and client auth/session events such as app.signout
 
 ## 4. UI and navigation
 
 - [ ] 4.1 Define login screen behavior and validation
 - [ ] 4.2 Define change-password screen behavior
-- [ ] 4.3 Define users maintenance screen behavior
+- [ ] 4.3 Define user-maintenance page behavior, JavaScript interactions, and auth/session client event handling
 - [ ] 4.4 Define shared layout and navigation visibility rules
 - [ ] 4.5 Keep Contacts UI behavior unchanged
 
@@ -42,3 +43,4 @@
 - [ ] 6.4 Verify command routes require authentication
 - [ ] 6.5 Verify the solution builds successfully
 - [ ] 6.6 Verify periodic cookie revalidation refreshes or invalidates auth-sensitive sessions
+- [ ] 6.7 Verify user lifecycle events trigger SignalR notifications, session decisions, and client auth/session events such as app.signout

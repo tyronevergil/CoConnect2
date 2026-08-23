@@ -69,17 +69,22 @@ The system SHALL persist whether a user account is enabled or disabled.
 - **WHEN** an administrator disables or enables a user account
 - **THEN** the system SHALL update the persistent `User` status field
 
-### Requirement: The application SHALL coordinate auth-sensitive user maintenance with cookie revalidation
-The system SHALL route `UserUpdate`, `UserDisable`, and `UserDelete` through an orchestration handler that keeps the persistent `User` record and the current authentication session in sync.
+### Requirement: The application SHALL publish user lifecycle events and orchestrate auth/session decisions from those events
+The system SHALL publish `UserCreated`, `UserUpdated`, `UserDisabled`, and `UserDeleted` events after the corresponding user command succeeds and SHALL use event handlers to keep the persistent `User` record, the current authentication session, and the UI notification flow in sync.
 
-#### Scenario: Auth-sensitive update affects the current user
-- **WHEN** a signed-in user's password, role, or status changes
-- **THEN** the system SHALL refresh or revalidate the current cookie principal
-- **AND** sign the user out if the account is disabled or deleted
+#### Scenario: Successful user command publishes a lifecycle event
+- **WHEN** a `UserCreate`, `UserUpdate`, `UserDisable`, or `UserDelete` command completes successfully
+- **THEN** the system SHALL publish the matching `UserCreated`, `UserUpdated`, `UserDisabled`, or `UserDeleted` event
 
-#### Scenario: Maintenance for another user does not affect the current session
-- **WHEN** an administrator changes a different user's account state
-- **THEN** the system SHALL persist the change without forcing a refresh of unrelated sessions
+#### Scenario: Current-user lifecycle event updates the session
+- **WHEN** an event affects the currently signed-in user
+- **THEN** the system SHALL refresh the cookie principal, sign the user out, or leave the session unchanged according to the account state
+- **AND** publish a shared client auth/session event such as `app.signout` when the browser must react before redirecting
+- **AND** notify subscribed clients through SignalR when a session decision is made
+
+#### Scenario: Other-user lifecycle event does not disrupt the current session
+- **WHEN** an event affects a different user's account state
+- **THEN** the system SHALL persist the change and notify subscribed clients without forcing a refresh of unrelated sessions
 
 ### Requirement: The application SHALL secure command middleware with authentication and roles
 The system SHALL require authenticated principals for command routes and SHALL allow authorization checks based on roles.
@@ -99,16 +104,17 @@ The system SHALL allow supported query endpoints to remain publicly accessible i
 - **WHEN** a client submits a supported query request without authentication
 - **THEN** the system SHALL allow the request to proceed
 
-### Requirement: UsersController SHALL follow the same CQRS-style flow as Contacts
-The system SHALL expose user-maintenance endpoints that follow the same command/query separation used by the Contacts feature.
+### Requirement: The application SHALL expose user maintenance through a page shell and JavaScript-driven query and command calls
+The system SHALL render the user-maintenance experience through a thin MVC shell while JavaScript calls the user query and command endpoints directly.
 
-#### Scenario: User query route returns persisted users
-- **WHEN** a client requests the user list or a specific user by id
-- **THEN** the system SHALL read from the persistent `User` store
+#### Scenario: User query data loads through the page shell
+- **WHEN** the user-maintenance page loads
+- **THEN** the browser SHALL call the user query endpoint(s) to retrieve persisted users
 
-#### Scenario: User command route updates account state
-- **WHEN** an administrator submits a user maintenance command
-- **THEN** the system SHALL persist the requested account change
+#### Scenario: User command submits through JavaScript
+- **WHEN** an administrator submits create, update, disable, or delete from the page
+- **THEN** JavaScript SHALL post the corresponding command to the command endpoint
+- **AND** the browser SHALL react to auth/session notifications delivered through SignalR and shared client events such as `app.signout` when applicable
 
 ### Requirement: The application SHALL expose user query routes
 The system SHALL provide query routes for reading user records from the persistent store.
