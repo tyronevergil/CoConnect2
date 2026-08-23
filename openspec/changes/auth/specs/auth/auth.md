@@ -39,6 +39,11 @@ The system SHALL store account-maintenance data in a persistent `User` entity ow
 - **THEN** the system SHALL create a persistent `User` record
 - **AND** store the account-maintenance fields in the persistence layer
 
+#### Scenario: In-memory bootstrap admin exists
+- **WHEN** the application initializes the in-memory unit of work
+- **THEN** the system SHALL include a bootstrap `Admin` user in `UnitOfWorkInMemory.cs`
+- **AND** the bootstrap account SHALL use the default password `Admin123`
+
 #### Scenario: Update persistent user record
 - **WHEN** an administrator updates a user account
 - **THEN** the system SHALL persist the changes in the `User` entity

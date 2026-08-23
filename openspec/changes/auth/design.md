@@ -7,6 +7,7 @@ The authentication work must fit this existing structure and reuse the same pers
 **Goals:**
 - Add sign-in, sign-out, and change-password flows.
 - Persist a separate `User` entity for account-maintenance data.
+- Seed the in-memory unit of work with a bootstrap `Admin` user in `UnitOfWorkInMemory.cs` so the maintenance experience can be reached on first run.
 - Use ASP.NET Core cookie authentication for browser sessions.
 - Secure command middleware with authenticated principals and roles.
 - Keep query middleware public initially, with a clear path to secure it later.
@@ -31,7 +32,11 @@ The authentication work must fit this existing structure and reuse the same pers
    - Rationale: the user-account store should be owned by the application persistence layer, not by the controller or view layer.
    - Alternatives considered: storing credentials only in ASP.NET Identity tables or modeling users as contacts. Those do not match the desired ownership model.
 
-3. Represent roles with a fixed enum for the initial role set, while allowing custom claims to extend authorization later.
+3. Seed the in-memory unit of work with a bootstrap `Admin` user.
+   - Rationale: `UnitOfWorkInMemory.cs` is the current bootstrap data source, and an initial admin account is needed so the user-maintenance screen can be reached on first run.
+   - Alternatives considered: requiring manual database setup or leaving the maintenance screen inaccessible until a user is created through another path. Those approaches make first-run access harder than necessary.
+
+4. Represent roles with a fixed enum for the initial role set, while allowing custom claims to extend authorization later.
    - Rationale: the first phase only needs a small, stable set of roles (`User`, `Admin`), and an enum prevents invalid role values. Custom claims should remain available for future authorization needs without forcing a redesign of the account model.
    - Alternatives considered: free-form text roles or a dedicated `Role` entity. Text is less safe, and a full role entity adds unnecessary complexity for phase 1.
 

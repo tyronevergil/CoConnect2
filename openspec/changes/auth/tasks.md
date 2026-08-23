@@ -15,6 +15,7 @@
 ## 3. User maintenance and CQRS flow
 
 - [ ] 3.1 Add a user-maintenance page shell with JavaScript-driven query and command calls
+- [ ] 3.1a Document the in-memory bootstrap `Admin` user
 - [ ] 3.2 Bridge user maintenance commands to the persistent user store
 - [ ] 3.3 Keep the user maintenance flow aligned with the Contacts page-shell and JavaScript pattern
 - [ ] 3.4 Add create/update/disable/delete commands as needed
