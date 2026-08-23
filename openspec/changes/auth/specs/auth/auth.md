@@ -20,14 +20,14 @@ The system SHALL allow an authenticated user to change their password without le
 - **THEN** the system SHALL verify the current password
 - **AND** update the stored password hash
 
-### Requirement: The application SHALL periodically revalidate authenticated cookies
-The system SHALL periodically validate the current cookie principal against persisted user account state so that password, role, and status changes are detected.
+### Requirement: The application SHALL validate authenticated cookies on request
+The system SHALL validate the current cookie principal on incoming requests against persisted user account state so that password, role, and status changes are detected without background polling.
 
-#### Scenario: Cookie remains valid within the revalidation window
-- **WHEN** an authenticated user submits a request before the revalidation interval expires
+#### Scenario: Cookie remains valid while the principal matches persisted state
+- **WHEN** an authenticated user submits a request and the principal still matches persisted user account state
 - **THEN** the system SHALL allow the request to proceed using the existing cookie principal
 
-#### Scenario: Cookie is revalidated after auth-relevant user changes
+#### Scenario: Cookie is invalidated after auth-relevant user changes
 - **WHEN** the system detects that the persisted `User` record has changed in a way that affects authentication or authorization
 - **THEN** the system SHALL refresh the principal or reject the cookie according to the current account state
 
@@ -43,15 +43,15 @@ The system SHALL store account-maintenance data in a persistent `User` entity ow
 - **WHEN** an administrator updates a user account
 - **THEN** the system SHALL persist the changes in the `User` entity
 
-### Requirement: The application SHALL represent user roles with a fixed enum
-The system SHALL store the user role as a fixed enumerated value rather than a free-form text field.
+### Requirement: The application SHALL represent initial user roles with a fixed enum and reserve custom claims for future authorization needs
+The system SHALL store the initial user role as a fixed enumerated value rather than a free-form text field and SHALL reserve custom claims beyond the initial role set for future authorization needs.
 
-#### Scenario: Valid role is assigned
+#### Scenario: Valid initial role is assigned
 - **WHEN** a user account is created or updated
 - **THEN** the system SHALL assign one of the supported enum values
 - **AND** persist the role with the user record
 
-#### Supported role values
+#### Supported initial role values
 - `User`
 - `Admin`
 
@@ -79,8 +79,16 @@ The system SHALL publish `UserCreated`, `UserUpdated`, `UserDisabled`, and `User
 #### Scenario: Current-user lifecycle event updates the session
 - **WHEN** an event affects the currently signed-in user
 - **THEN** the system SHALL refresh the cookie principal, sign the user out, or leave the session unchanged according to the account state
-- **AND** publish a shared client auth/session event such as `app.signout` when the browser must react before redirecting
 - **AND** notify subscribed clients through SignalR when a session decision is made
+
+#### Scenario: Forced sign-out uses a dedicated client event
+- **WHEN** the system must force the browser to sign out because the current user was affected by a maintenance change
+- **THEN** the system SHALL publish `app.signout` with the affected username, reason, message, and redirectUrl
+- **AND** the browser SHALL show the forced sign-out response before redirecting
+
+#### Scenario: Routine logout does not use the forced-sign-out modal
+- **WHEN** the currently signed-in user performs a voluntary logout
+- **THEN** the system SHALL clear the browser session without showing the forced sign-out modal
 
 #### Scenario: Other-user lifecycle event does not disrupt the current session
 - **WHEN** an event affects a different user's account state
@@ -104,15 +112,15 @@ The system SHALL allow supported query endpoints to remain publicly accessible i
 - **WHEN** a client submits a supported query request without authentication
 - **THEN** the system SHALL allow the request to proceed
 
-### Requirement: The application SHALL expose user maintenance through a page shell and JavaScript-driven query and command calls
-The system SHALL render the user-maintenance experience through a thin MVC shell while JavaScript calls the user query and command endpoints directly.
+### Requirement: The application SHALL expose user maintenance through a thin page shell and JavaScript-driven query and command calls
+The system SHALL render the user-maintenance experience through a thin page shell while JavaScript calls the user query and command endpoints directly.
 
 #### Scenario: User query data loads through the page shell
 - **WHEN** the user-maintenance page loads
 - **THEN** the browser SHALL call the user query endpoint(s) to retrieve persisted users
 
 #### Scenario: User command submits through JavaScript
-- **WHEN** an administrator submits create, update, disable, or delete from the page
+- **WHEN** an administrator submits create, update, disable, or delete from the user-maintenance page
 - **THEN** JavaScript SHALL post the corresponding command to the command endpoint
 - **AND** the browser SHALL react to auth/session notifications delivered through SignalR and shared client events such as `app.signout` when applicable
 

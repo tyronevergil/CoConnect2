@@ -83,7 +83,7 @@ Responsibilities:
 
 Every feature should follow the same shape:
 
-1. Add the UI in the relevant Razor view.
+1. Add the UI in the relevant Razor view, or expose a dedicated maintenance shell from a thin `Controller.Index()` action when the feature needs its own page.
 2. Initialize page-specific behavior using app.ready.
 3. Submit commands with app.post.
 4. Load read-only data with app.get.
@@ -93,6 +93,7 @@ Every feature should follow the same shape:
 8. Publish an event if the UI should update in real time.
 9. Use event handlers to coordinate follow-up concerns such as SignalR notifications and, for auth-sensitive flows, cookie/session decisions.
 10. Surface auth/session outcomes to the browser through a dedicated client event such as app.signout when the UI must react before redirecting.
+11. Treat validate-on-request as the cookie safety net for auth-sensitive flows.
 
 This pattern should be treated as the default implementation model for new work, including Contacts-style CRUD and maintenance screens.
 
@@ -119,7 +120,7 @@ Use these helpers instead of ad hoc implementations:
 - app.showConfirm for confirmation flows
 - app.on for subscribing to shared runtime and feature events
 
-Auth/session events such as app.signout may show a modal before redirecting or logging the user out.
+Auth/session events such as app.signout may show a modal before redirecting or logging the user out. Routine logout should not show the forced sign-out modal. The event payload should stay small and explicit, for example username, reason, message, and redirectUrl.
 
 ### Feature script rules
 
@@ -128,6 +129,7 @@ Auth/session events such as app.signout may show a modal before redirecting or l
 - Do not build page behavior directly against raw jQuery or manual fetch code when the shared app helpers already exist.
 - Subscribe to auth/session client events in app-start.js or the relevant shared bootstrap layer when the reaction is global.
 - Use a dedicated event such as app.signout when the browser must react to a server-auth/session decision before redirecting.
+- Use validate-on-request as the ongoing cookie safety net.
 
 
 ## 5. Backend Standards

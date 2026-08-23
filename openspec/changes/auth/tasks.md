@@ -3,12 +3,12 @@
 - [ ] 1.1 Add MVC login and logout actions and views
 - [ ] 1.2 Add change-password support for signed-in users
 - [ ] 1.3 Configure ASP.NET Core cookie authentication
-- [ ] 1.4 Add periodic cookie revalidation support and sign-out handling
+- [ ] 1.4 Add validate-on-request cookie safety and sign-out handling
 
 ## 2. Persistent user storage
 
 - [ ] 2.1 Add a dedicated persistent `User` entity
-- [ ] 2.2 Add a `UserRole` enum for supported roles
+- [ ] 2.2 Add a `UserRole` enum for the initial roles
 - [ ] 2.3 Add repository/specification support for user queries
 - [ ] 2.4 Add user-account persistence rules for password hashes, roles, and status
 
@@ -25,7 +25,7 @@
 
 - [ ] 4.1 Define login screen behavior and validation
 - [ ] 4.2 Define change-password screen behavior
-- [ ] 4.3 Define user-maintenance page behavior, JavaScript interactions, and auth/session client event handling
+- [ ] 4.3 Define the user-maintenance view behavior, JavaScript interactions, and auth/session client event handling
 - [ ] 4.4 Define shared layout and navigation visibility rules
 - [ ] 4.5 Keep Contacts UI behavior unchanged
 
@@ -40,7 +40,7 @@
 - [ ] 6.1 Verify login and logout succeed through MVC
 - [ ] 6.2 Verify password changes update the persistent user record
 - [ ] 6.3 Verify user query routes read from the persistent store
-- [ ] 6.4 Verify command routes require authentication
+- [ ] 6.4 Verify command routes require authentication and role-based authorization
 - [ ] 6.5 Verify the solution builds successfully
-- [ ] 6.6 Verify periodic cookie revalidation refreshes or invalidates auth-sensitive sessions
+- [ ] 6.6 Verify validate-on-request refreshes or invalidates auth-sensitive sessions
 - [ ] 6.7 Verify user lifecycle events trigger SignalR notifications, session decisions, and client auth/session events such as app.signout
