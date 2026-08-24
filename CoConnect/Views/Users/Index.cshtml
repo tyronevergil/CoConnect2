@@ -1,0 +1,260 @@
+@{
+    ViewData["Title"] = "Users";
+}
+
+<div class="bg-light">
+    <div class="container mt-4">
+
+        <div class="row">
+
+            <div class="col-md-4">
+
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">Add User</div>
+
+                    <div class="card-body">
+                        <form id="userForm">
+                            <div class="mb-3">
+                                <label class="form-label">Username</label>
+                                <input type="text" class="form-control" id="username" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Password</label>
+                                <input type="password" class="form-control" id="password" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Role</label>
+                                <select class="form-select" id="role" required>
+                                    <option value="0">User</option>
+                                    <option value="1">Admin</option>
+                                </select>
+                            </div>
+
+                            <button class="btn btn-primary w-100">Add User</button>
+                        </form>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-8">
+
+                <div class="card shadow-sm">
+                    <div class="card-header bg-secondary text-white">Users</div>
+
+                    <div class="card-body">
+
+                        <table id="usersTable" class="table table-striped">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<div class="modal fade" id="editUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit User</h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <input type="hidden" id="editUserId">
+
+                <div class="mb-3">
+                    <label class="form-label">Username</label>
+                    <input type="text" class="form-control" id="editUsername">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Role</label>
+                    <select class="form-select" id="editRole">
+                        <option value="0">User</option>
+                        <option value="1">Admin</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">New Password (optional)</label>
+                    <input type="password" class="form-control" id="editPassword">
+                </div>
+
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="editDisabled">
+                    <label class="form-check-label" for="editDisabled">Disabled</label>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button id="saveUserEdit" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function(app, $) {
+            app.ready(function () {
+                var table = $('#usersTable').DataTable({
+                    columnDefs: [{ orderable: false, targets: 3 }]
+                });
+
+                var editModal = new bootstrap.Modal(document.getElementById('editUserModal'));
+
+                function roleText(role) {
+                    return parseInt(role) === 1 ? 'Admin' : 'User';
+                }
+
+                function statusText(item) {
+                    return item.isDisabled ? 'Disabled' : 'Active';
+                }
+
+                function redrawUsers(data) {
+                    table.clear();
+
+                    data.forEach(function(item) {
+                        var actions = '<button class="btn btn-sm btn-outline-primary edit">Edit</button> ' +
+                            '<button class="btn btn-sm btn-outline-warning disable">Disable</button> ' +
+                            '<button class="btn btn-sm btn-outline-danger delete">Delete</button>';
+
+                        var node = table.row.add([
+                            item.username,
+                            roleText(item.role),
+                            statusText(item),
+                            actions
+                        ]).node();
+
+                        $(node).attr('id', item.userId);
+                        $(node).attr('data-role', item.role);
+                        $(node).attr('data-disabled', item.isDisabled);
+                    });
+
+                    table.draw();
+                }
+
+                function loadUsers() {
+                    app.get('load users', '/api/query/users')
+                        .done(function(data) {
+                            redrawUsers(data || []);
+                        });
+                }
+
+                loadUsers();
+
+                app.on('created.user', function() {
+                    loadUsers();
+                });
+
+                app.on('updated.user', function() {
+                    loadUsers();
+                });
+
+                app.on('disabled.user', function() {
+                    loadUsers();
+                });
+
+                app.on('deleted.user', function() {
+                    loadUsers();
+                });
+
+                $('#userForm').on('submit', function(e) {
+                    e.preventDefault();
+
+                    app.post('create user', '/api/command/UserCreate', {
+                        username: $('#username').val(),
+                        password: $('#password').val(),
+                        role: parseInt($('#role').val(), 10),
+                        isDisabled: false
+                    }).done(function() {
+                        $('#userForm')[0].reset();
+                    });
+                });
+
+                $('#usersTable tbody').on('click', '.edit', function() {
+                    var row = table.row($(this).parents('tr'));
+                    var data = row.data();
+                    var rowNode = row.node();
+
+                    $('#editUserId').val(rowNode.id);
+                    $('#editUsername').val(data[0]);
+                    $('#editRole').val($(rowNode).attr('data-role'));
+                    $('#editDisabled').prop('checked', $(rowNode).attr('data-disabled') === 'true');
+                    $('#editPassword').val('');
+
+                    editModal.show();
+                });
+
+                $('#saveUserEdit').on('click', function() {
+                    app.post('update user', '/api/command/UserUpdate', {
+                        userId: $('#editUserId').val(),
+                        username: $('#editUsername').val(),
+                        role: parseInt($('#editRole').val(), 10),
+                        isDisabled: $('#editDisabled').is(':checked'),
+                        password: $('#editPassword').val()
+                    }).done(function() {
+                        editModal.hide();
+                    });
+                });
+
+                $('#usersTable tbody').on('click', '.disable', function() {
+                    var row = table.row($(this).parents('tr'));
+                    var userId = row.node().id;
+
+                    app.showConfirm({
+                        title: 'Disable User',
+                        message: 'Disable this user account?',
+                        okText: 'Disable',
+                        cancelText: 'Cancel',
+                        okButtonClass: 'btn-warning'
+                    }).then(function(confirmed) {
+                        if (!confirmed) return;
+
+                        app.post('disable user', '/api/command/UserDisable', {
+                            userId: userId
+                        });
+                    });
+                });
+
+                $('#usersTable tbody').on('click', '.delete', function() {
+                    var row = table.row($(this).parents('tr'));
+                    var userId = row.node().id;
+
+                    app.showConfirm({
+                        title: 'Delete User',
+                        message: 'Delete this user account?',
+                        okText: 'Delete',
+                        cancelText: 'Cancel',
+                        okButtonClass: 'btn-danger'
+                    }).then(function(confirmed) {
+                        if (!confirmed) return;
+
+                        app.post('delete user', '/api/command/UserDelete', {
+                            userId: userId
+                        });
+                    });
+                });
+            });
+        })(window.app, window.jQuery)
+    </script>
+}

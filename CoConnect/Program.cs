@@ -1,9 +1,11 @@
 using CoConnect.Domain;
 using CoConnect.Domain.Handlers;
 using CoConnect.Infrastructure;
+using CoConnect.Infrastructure.Auth;
 using CoConnect.Infrastructure.Queue;
-using CoConnect.Infrastructure.Service;
 using CoConnect.Infrastructure.QueryRouting;
+using CoConnect.Infrastructure.Service;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 using SimpleBus;
@@ -16,7 +18,6 @@ namespace CoConnect
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
             builder.Services.AddControllersWithViews();
             builder.Services.AddSignalR();
 
@@ -25,6 +26,27 @@ namespace CoConnect
             builder.Services.AddSingleton<IDataContextFactory, DataContextFactory<UnitOfWorkInMemory>>();
             builder.Services.AddSingleton<QueryRouteRegistry>();
             builder.Services.AddSingleton<QueryRouteExecutor>();
+            builder.Services.AddSingleton<CookiePrincipalValidator>();
+
+            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
+                {
+                    options.LoginPath = "/Account/Login";
+                    options.AccessDeniedPath = "/Account/Login";
+                    options.Cookie.HttpOnly = true;
+                    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                    options.Cookie.SameSite = SameSiteMode.Lax;
+                    options.Events = new CookieAuthenticationEvents
+                    {
+                        OnValidatePrincipal = async context =>
+                        {
+                            var validator = context.HttpContext.RequestServices.GetRequiredService<CookiePrincipalValidator>();
+                            await validator.ValidateAsync(context);
+                        }
+                    };
+                });
+
+            builder.Services.AddAuthorization();
 
             builder.Services.AddSingleton<MessageQueue>();
             builder.Services.AddHostedService<MessageQueueWorker>();
@@ -40,6 +62,15 @@ namespace CoConnect
             builder.Services.AddSingleton<IMessageHandler, ContactDeleteHandler>();
             builder.Services.AddSingleton<IMessageHandler, ContactDeletedHandler>();
 
+            builder.Services.AddSingleton<IMessageHandler, UserCreateHandler>();
+            builder.Services.AddSingleton<IMessageHandler, UserCreatedHandler>();
+            builder.Services.AddSingleton<IMessageHandler, UserUpdateHandler>();
+            builder.Services.AddSingleton<IMessageHandler, UserUpdatedHandler>();
+            builder.Services.AddSingleton<IMessageHandler, UserDisableHandler>();
+            builder.Services.AddSingleton<IMessageHandler, UserDisabledHandler>();
+            builder.Services.AddSingleton<IMessageHandler, UserDeleteHandler>();
+            builder.Services.AddSingleton<IMessageHandler, UserDeletedHandler>();
+
             builder.Services.AddSingleton<INotificationDispatcher, SignalRNotificationDispatcher>();
 
             var app = builder.Build();
@@ -48,17 +79,13 @@ namespace CoConnect
             using (var serviceScope = serviceScopeFactory.CreateScope())
             {
                 var dbContextFactory = serviceScope.ServiceProvider.GetRequiredService<IDbContextFactory<UnitOfWorkInMemory>>();
-                using (var dbContext = dbContextFactory.CreateDbContext())
-                {
-                    dbContext.Database.EnsureCreated();
-                }
+                using var dbContext = dbContextFactory.CreateDbContext();
+                dbContext.Database.EnsureCreated();
             }
 
-            // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
@@ -69,6 +96,7 @@ namespace CoConnect
 
             app.UseMiddleware<QueryMiddleware>();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseMiddleware<ServiceBusMiddleware>();

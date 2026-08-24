@@ -134,7 +134,14 @@
 
 			function cleanup() {
 				okBtn.removeEventListener('click', onOk);
+				modalEl.removeEventListener('hide.bs.modal', onHide);
 				modalEl.removeEventListener('hidden.bs.modal', onHidden);
+			}
+
+			function onHide() {
+				if (modalEl.contains(document.activeElement) && typeof document.activeElement.blur === 'function') {
+					document.activeElement.blur();
+				}
 			}
 
 			function onOk() {
@@ -142,6 +149,7 @@
 				settled = true;
 				cleanup();
 				resolve(true);
+				onHide();
 				modal.hide();
 			}
 
@@ -153,6 +161,7 @@
 			}
 
 			okBtn.addEventListener('click', onOk);
+			modalEl.addEventListener('hide.bs.modal', onHide);
 			modalEl.addEventListener('hidden.bs.modal', onHidden, { once: true });
 			modal.show();
 		});
@@ -186,6 +195,37 @@
 		});
 	}
 
+	function handleForcedSignout(data) {
+		var currentUsername = (app.currentUsername || '').toLowerCase();
+		var eventUsername = ((data && data.username) || '').toLowerCase();
+
+		if (!currentUsername || !eventUsername || currentUsername !== eventUsername) {
+			return;
+		}
+
+		var modalEl = document.getElementById('appSignoutModal');
+		var messageEl = document.getElementById('appSignoutMessage');
+		var okBtn = document.getElementById('appSignoutOkBtn');
+		var redirectUrl = (data && data.redirectUrl) || '/Account/Login';
+		var message = (data && data.message) || 'Your session has changed. You will be redirected to sign in again.';
+
+		if (!modalEl || !messageEl || !okBtn) {
+			window.location.href = redirectUrl;
+			return;
+		}
+
+		messageEl.textContent = message;
+		var modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+
+		function proceed() {
+			okBtn.removeEventListener('click', proceed);
+			window.location.href = redirectUrl;
+		}
+
+		okBtn.addEventListener('click', proceed, { once: true });
+		modal.show();
+	}
+
 	$(function () {
 
 		app.on("app.error", function (e, data) {
@@ -198,15 +238,20 @@
 			app.showToast(data.message, 'info');
 		});
 
-        // Start SignalR hub
+		app.on("app.signout", function (e, data) {
+			console.log(e, data);
+			handleForcedSignout(data);
+		});
+
+		// Start SignalR hub
 		app._startHub(function (connId) {
 			connectionId = connId;
 		});
 
-        // Execute all queued ready callbacks
-        if (app._flushReadyQueue) {
-            app._flushReadyQueue();
-        }
-    });
+		// Execute all queued ready callbacks
+		if (app._flushReadyQueue) {
+			app._flushReadyQueue();
+		}
+	});
 
 })(window.app, window.jQuery);
