@@ -61,8 +61,8 @@
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="Account" asp-action="ChangePassword">Change Password</a>
                             </li>
-                            <li class="nav-item">
-                                <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                            <li class="nav-item d-flex align-items-center ms-sm-2">
+                                <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline-flex align-items-center">
                                     @Html.AntiForgeryToken()
                                     <button type="submit" class="btn btn-link nav-link text-dark border-0 p-0">Logout (@User.Identity?.Name)</button>
                                 </form>
