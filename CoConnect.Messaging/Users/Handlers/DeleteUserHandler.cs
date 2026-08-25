@@ -7,20 +7,20 @@ using SimpleBus;
 
 namespace CoConnect.Messaging.Users.Handlers
 {
-    public class UserDeleteHandler : IMessageHandler<UserDelete>
+    public class DeleteUserHandler : IMessageHandler<DeleteUser>
     {
-        private readonly ILogger<UserDeleteHandler> _logger;
+        private readonly ILogger<DeleteUserHandler> _logger;
         private readonly INotificationDispatcher _dispatcher;
         private readonly IDataContextFactory _factory;
 
-        public UserDeleteHandler(ILogger<UserDeleteHandler> logger, INotificationDispatcher dispatcher, IDataContextFactory factory)
+        public DeleteUserHandler(ILogger<DeleteUserHandler> logger, INotificationDispatcher dispatcher, IDataContextFactory factory)
         {
             _logger = logger;
             _dispatcher = dispatcher;
             _factory = factory;
         }
 
-        public async Task Handle(IServiceContext context, UserDelete message)
+        public async Task Handle(IServiceContext context, DeleteUser message)
         {
             try
             {
@@ -47,7 +47,7 @@ namespace CoConnect.Messaging.Users.Handlers
             }
             catch (Exception ex)
             {
-                var error = $"Error processing UserDelete command for UserId={message.UserId}";
+                var error = $"Error processing DeleteUser command for UserId={message.UserId}";
                 _logger.LogError(ex, error);
                 await _dispatcher.PublishAsync(message.ConnectionId, "app.error", new { message = error, exception = ex.Message });
             }

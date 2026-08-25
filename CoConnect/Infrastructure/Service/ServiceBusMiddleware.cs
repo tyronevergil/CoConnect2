@@ -12,10 +12,10 @@ namespace CoConnect.Infrastructure.Service
         private static readonly IEnumerable<Type> _messageTypes;
         private static readonly HashSet<string> _adminCommands = new(StringComparer.OrdinalIgnoreCase)
         {
-            nameof(UserCreate),
-            nameof(UserUpdate),
-            nameof(UserDisable),
-            nameof(UserDelete)
+            nameof(CreateUser),
+            nameof(UpdateUser),
+            nameof(DisableUser),
+            nameof(DeleteUser)
         };
 
         static ServiceBusMiddleware()

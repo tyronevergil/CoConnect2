@@ -1,6 +1,6 @@
 namespace CoConnect.Messaging.Users.Commands
 {
-    public class UserDelete : CommandMessageBase
+    public class DeleteUser : CommandMessageBase
     {
         public string UserId { get; set; } = string.Empty;
     }

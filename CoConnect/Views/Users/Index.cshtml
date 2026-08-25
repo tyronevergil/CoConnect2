@@ -181,7 +181,7 @@
                 $('#userForm').on('submit', function(e) {
                     e.preventDefault();
 
-                    app.post('create user', '/api/command/UserCreate', {
+                    app.post('create user', '/api/command/CreateUser', {
                         username: $('#username').val(),
                         password: $('#password').val(),
                         role: parseInt($('#role').val(), 10),
@@ -206,7 +206,7 @@
                 });
 
                 $('#saveUserEdit').on('click', function() {
-                    app.post('update user', '/api/command/UserUpdate', {
+                    app.post('update user', '/api/command/UpdateUser', {
                         userId: $('#editUserId').val(),
                         username: $('#editUsername').val(),
                         role: parseInt($('#editRole').val(), 10),
@@ -230,7 +230,7 @@
                     }).then(function(confirmed) {
                         if (!confirmed) return;
 
-                        app.post('disable user', '/api/command/UserDisable', {
+                        app.post('disable user', '/api/command/DisableUser', {
                             userId: userId
                         });
                     });
@@ -249,7 +249,7 @@
                     }).then(function(confirmed) {
                         if (!confirmed) return;
 
-                        app.post('delete user', '/api/command/UserDelete', {
+                        app.post('delete user', '/api/command/DeleteUser', {
                             userId: userId
                         });
                     });

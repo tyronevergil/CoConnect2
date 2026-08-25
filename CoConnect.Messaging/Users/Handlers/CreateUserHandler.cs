@@ -10,20 +10,20 @@ using SimpleBus;
 
 namespace CoConnect.Messaging.Users.Handlers
 {
-    public class UserCreateHandler : IMessageHandler<UserCreate>
+    public class CreateUserHandler : IMessageHandler<CreateUser>
     {
-        private readonly ILogger<UserCreateHandler> _logger;
+        private readonly ILogger<CreateUserHandler> _logger;
         private readonly INotificationDispatcher _dispatcher;
         private readonly IDataContextFactory _factory;
 
-        public UserCreateHandler(ILogger<UserCreateHandler> logger, INotificationDispatcher dispatcher, IDataContextFactory factory)
+        public CreateUserHandler(ILogger<CreateUserHandler> logger, INotificationDispatcher dispatcher, IDataContextFactory factory)
         {
             _logger = logger;
             _dispatcher = dispatcher;
             _factory = factory;
         }
 
-        public async Task Handle(IServiceContext context, UserCreate message)
+        public async Task Handle(IServiceContext context, CreateUser message)
         {
             try
             {
@@ -60,7 +60,7 @@ namespace CoConnect.Messaging.Users.Handlers
             }
             catch (Exception ex)
             {
-                var error = $"Error processing UserCreate command for Username={message.Username}";
+                var error = $"Error processing CreateUser command for Username={message.Username}";
                 _logger.LogError(ex, error);
                 await _dispatcher.PublishAsync(message.ConnectionId, "app.error", new { message = error, exception = ex.Message });
             }

@@ -1,6 +1,6 @@
 namespace CoConnect.Messaging.Contacts.Commands
 {
-    public class ContactUpdate : CommandMessageBase
+    public class CreateContact : CommandMessageBase
     {
         public string ContactId { get; set; }
         public string Lastname { get; set; }

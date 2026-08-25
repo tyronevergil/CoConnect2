@@ -56,20 +56,20 @@ namespace CoConnect
             builder.Services.AddSingleton<IServiceContext, ServiceBus>();
             builder.Services.AddSingleton<IServiceProcessor, ServiceProcessor>();
 
-            builder.Services.AddSingleton<IMessageHandler, ContactCreateHandler>();
+            builder.Services.AddSingleton<IMessageHandler, CreateContactHandler>();
             builder.Services.AddSingleton<IMessageHandler, ContactCreatedHandler>();
-            builder.Services.AddSingleton<IMessageHandler, ContactUpdateHandler>();
+            builder.Services.AddSingleton<IMessageHandler, UpdateContactHandler>();
             builder.Services.AddSingleton<IMessageHandler, ContactUpdatedHandler>();
-            builder.Services.AddSingleton<IMessageHandler, ContactDeleteHandler>();
+            builder.Services.AddSingleton<IMessageHandler, DeleteContactHandler>();
             builder.Services.AddSingleton<IMessageHandler, ContactDeletedHandler>();
 
-            builder.Services.AddSingleton<IMessageHandler, UserCreateHandler>();
+            builder.Services.AddSingleton<IMessageHandler, CreateUserHandler>();
             builder.Services.AddSingleton<IMessageHandler, UserCreatedHandler>();
-            builder.Services.AddSingleton<IMessageHandler, UserUpdateHandler>();
+            builder.Services.AddSingleton<IMessageHandler, UpdateUserHandler>();
             builder.Services.AddSingleton<IMessageHandler, UserUpdatedHandler>();
-            builder.Services.AddSingleton<IMessageHandler, UserDisableHandler>();
+            builder.Services.AddSingleton<IMessageHandler, DisableUserHandler>();
             builder.Services.AddSingleton<IMessageHandler, UserDisabledHandler>();
-            builder.Services.AddSingleton<IMessageHandler, UserDeleteHandler>();
+            builder.Services.AddSingleton<IMessageHandler, DeleteUserHandler>();
             builder.Services.AddSingleton<IMessageHandler, UserDeletedHandler>();
 
             builder.Services.AddSingleton<INotificationDispatcher, SignalRNotificationDispatcher>();

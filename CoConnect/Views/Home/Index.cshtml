@@ -240,7 +240,7 @@
 
                     let form = this;
 
-                    app.post("create contact", '/api/command/ContactCreate', {
+                    app.post("create contact", '/api/command/CreateContact', {
                         firstname: first,
                         lastname: last,
                         email: email,
@@ -268,7 +268,7 @@
                     .then(function (confirmed) {
                         if (!confirmed) return;
 
-                        app.post("delete contact", '/api/command/ContactDelete', {
+                        app.post("delete contact", '/api/command/DeleteContact', {
                             contactId: contactIdToDelete
                         })
                         .done(function () {
@@ -302,7 +302,7 @@
                     let email = $('#editEmail').val();
                     let phone = $('#editPhone').val();
 
-                    app.post("update contact", '/api/command/ContactUpdate', {
+                    app.post("update contact", '/api/command/UpdateContact', {
                         contactId: id,
                         firstname: first,
                         lastname: last,

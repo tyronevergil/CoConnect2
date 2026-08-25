@@ -9,24 +9,24 @@ using SimpleBus;
 
 namespace CoConnect.Messaging.Contacts.Handlers
 {
-    public class ContactDeleteHandler : IMessageHandler<ContactDelete>
+    public class UpdateContactHandler : IMessageHandler<UpdateContact>
     {
-        private readonly ILogger<ContactDeleteHandler> _logger;
+        private readonly ILogger<UpdateContactHandler> _logger;
         private readonly INotificationDispatcher _dispatcher;
         private readonly IDataContextFactory _factory;
 
-        public ContactDeleteHandler(ILogger<ContactDeleteHandler> logger, INotificationDispatcher dispatcher, IDataContextFactory factory)
+        public UpdateContactHandler(ILogger<UpdateContactHandler> logger, INotificationDispatcher dispatcher, IDataContextFactory factory)
         {
             _logger = logger;
             _dispatcher = dispatcher;
             _factory = factory;
         }
 
-        public async Task Handle(IServiceContext context, ContactDelete message)
+        public async Task Handle(IServiceContext context, UpdateContact message)
         {
             try
             {
-                _logger.LogInformation("Processing ContactDelete command for ContactId={ContactId}", message.ContactId);
+                _logger.LogInformation("Processing UpdateContact command for ContactId={ContactId}: Firstname={Firstname}, Lastname={Lastname}", message.ContactId, message.Firstname, message.Lastname);
 
                 using (var dataContext = _factory.CreateDataContext())
                 {
@@ -37,20 +37,24 @@ namespace CoConnect.Messaging.Contacts.Handlers
                         _logger.LogWarning(error);
                         throw new ApplicationException(error);
                     }
-                    dataContext.Delete(contact);
+                    contact.Firstname = message.Firstname;
+                    contact.Lastname = message.Lastname;
+                    contact.Email = message.Email;
+                    contact.Phone = message.Phone;
+                    dataContext.Update(contact);
                     await dataContext.SaveChangesAsync();
                 }
 
-                await context.Publish(new ContactDeleted
+                await context.Publish(new ContactUpdated
                 {
-                    ContactId = message.ContactId
+                    ContactId = message.ContactId,
                 });
 
-                _logger.LogInformation("Successfully published ContactDeleted event for Id={ContactId}", message.ContactId);
+                _logger.LogInformation("Successfully published ContactUpdated event for Id={ContactId}", message.ContactId);
             }
             catch (Exception ex)
             {
-                var error = string.Format("Error processing ContactDelete command for ContactId={ContactId}", message.ContactId);
+                var error = string.Format("Error processing UpdateContact command for ContactId={0}: Firstname={1}, Lastname={2}", message.ContactId, message.Firstname, message.Lastname);
                 _logger.LogError(ex, error);
                 await _dispatcher.PublishAsync(message.ConnectionId, "app.error", new { message = error, exception = ex.Message });
             }

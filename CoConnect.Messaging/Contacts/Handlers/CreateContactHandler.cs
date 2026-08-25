@@ -9,26 +9,26 @@ using SimpleBus;
 
 namespace CoConnect.Messaging.Contacts.Handlers
 {
-    public class ContactCreateHandler : IMessageHandler<ContactCreate>
+    public class CreateContactHandler : IMessageHandler<CreateContact>
     {
-        private readonly ILogger<ContactCreateHandler> _logger;
+        private readonly ILogger<CreateContactHandler> _logger;
         private readonly INotificationDispatcher _dispatcher;
         private readonly IDataContextFactory _factory;
 
-        public ContactCreateHandler(ILogger<ContactCreateHandler> logger, INotificationDispatcher dispatcher, IDataContextFactory factory)
+        public CreateContactHandler(ILogger<CreateContactHandler> logger, INotificationDispatcher dispatcher, IDataContextFactory factory)
         {
             _logger = logger;
             _dispatcher = dispatcher;
             _factory = factory;
         }
 
-        public async Task Handle(IServiceContext context, ContactCreate message)
+        public async Task Handle(IServiceContext context, CreateContact message)
         {
             try
             {
                 message.ContactId = Guid.NewGuid().ToString();
 
-                _logger.LogInformation("Processing ContactCreate command: Firstname={Firstname}, Lastname={Lastname}, GeneratedId={ContactId}", message.Firstname, message.Lastname, message.ContactId);
+                _logger.LogInformation("Processing CreateContact command: Firstname={Firstname}, Lastname={Lastname}, GeneratedId={ContactId}", message.Firstname, message.Lastname, message.ContactId);
 
                 if (message.Firstname == "error")
                 {
@@ -58,7 +58,7 @@ namespace CoConnect.Messaging.Contacts.Handlers
             }
             catch (Exception ex)
             {
-                var error = string.Format("Error processing ContactCreate command: Firstname={0}, Lastname={1}", message.Firstname, message.Lastname);
+                var error = string.Format("Error processing CreateContact command: Firstname={0}, Lastname={1}", message.Firstname, message.Lastname);
                 _logger.LogError(ex, error);
                 await _dispatcher.PublishAsync(message.ConnectionId, "app.error", new { message = error, exception = ex.Message });
             }
