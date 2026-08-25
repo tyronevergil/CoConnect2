@@ -2,7 +2,7 @@
 using System.Security.Claims;
 using System.Text.Json;
 using CoConnect.Messaging;
-using CoConnect.Messaging.Abstractions;
+using CoConnect.Messaging.Users.Commands;
 using SimpleBus;
 
 namespace CoConnect.Infrastructure.Service

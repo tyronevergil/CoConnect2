@@ -1,13 +1,14 @@
-using CoConnect.Messaging;
-using CoConnect.Messaging.Handlers;
 using CoConnect.Infrastructure;
 using CoConnect.Infrastructure.Auth;
-using CoConnect.Infrastructure.Queue;
 using CoConnect.Infrastructure.QueryRouting;
+using CoConnect.Infrastructure.Queue;
 using CoConnect.Infrastructure.Service;
+using CoConnect.Messaging;
+using CoConnect.Messaging.Contacts.Handlers;
+using CoConnect.Messaging.Users.Handlers;
+using CoConnect.Persistence;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
-using CoConnect.Persistence;
 using SimpleBus;
 
 namespace CoConnect
