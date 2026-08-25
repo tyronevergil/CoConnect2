@@ -12,8 +12,8 @@ Use these rules as the default:
 
 - Keep UI code focused on presentation and interaction.
 - Keep controllers thin and transport-oriented.
-- Keep business behavior in handlers or supporting domain services.
-- Keep persistence concerns behind the domain boundary.
+- Keep business behavior in handlers or supporting messaging services.
+- Keep persistence concerns behind the messaging boundary.
 - Prefer command-driven workflows for state changes.
 - Prefer event-driven updates when the UI should react in real time.
 - Prefer event-handler orchestration when a workflow must also drive UI notifications or auth/session decisions.
@@ -50,14 +50,14 @@ Responsibilities:
 - return query results to the client
 - avoid embedding business rules directly
 
-### Domain layer
+### Messaging layer
 
 This layer includes:
 
 - commands
 - events
 - handlers
-- supporting domain logic
+- supporting messaging logic
 
 Responsibilities:
 

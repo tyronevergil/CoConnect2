@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using CrudDatastore;
-using Persistence;
+using CoConnect.Persistence;
 using QueryRouting;
 
 namespace CoConnect.Infrastructure.QueryRouting

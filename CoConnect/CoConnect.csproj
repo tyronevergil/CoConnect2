@@ -11,9 +11,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CoConnect.Domain\CoConnect.Domain.csproj" />
+    <ProjectReference Include="..\CoConnect.Messaging\CoConnect.Messaging.csproj" />
+    <ProjectReference Include="..\CoConnect.Persistence\CoConnect.Persistence.csproj" />
     <ProjectReference Include="..\QueryRouting\QueryRouting.csproj" />
-    <ProjectReference Include="..\Persistence\Persistence.csproj" />
     <ProjectReference Include="..\SimpleBus\SimpleBus.csproj" />
   </ItemGroup>
 

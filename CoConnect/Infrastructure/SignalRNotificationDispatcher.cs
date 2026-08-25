@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using CoConnect.Domain;
+using CoConnect.Messaging;
 using Microsoft.AspNetCore.SignalR;
 
 namespace CoConnect.Infrastructure

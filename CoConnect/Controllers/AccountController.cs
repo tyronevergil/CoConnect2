@@ -6,9 +6,9 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Persistence;
-using Persistence.Entities;
-using Persistence.Specifications;
+using CoConnect.Persistence;
+using CoConnect.Persistence.Entities;
+using CoConnect.Persistence.Specifications;
 
 namespace CoConnect.Controllers
 {

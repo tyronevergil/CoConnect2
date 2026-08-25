@@ -1,8 +1,8 @@
 ﻿using System.Reflection;
 using System.Security.Claims;
 using System.Text.Json;
-using CoConnect.Domain;
-using CoConnect.Domain.Abstractions;
+using CoConnect.Messaging;
+using CoConnect.Messaging.Abstractions;
 using SimpleBus;
 
 namespace CoConnect.Infrastructure.Service

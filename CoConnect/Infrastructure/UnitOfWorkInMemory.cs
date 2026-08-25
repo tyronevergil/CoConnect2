@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Persistence;
-using Persistence.Entities;
+using CoConnect.Persistence;
+using CoConnect.Persistence.Entities;
 
 namespace CoConnect.Infrastructure
 {

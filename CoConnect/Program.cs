@@ -1,5 +1,5 @@
-using CoConnect.Domain;
-using CoConnect.Domain.Handlers;
+using CoConnect.Messaging;
+using CoConnect.Messaging.Handlers;
 using CoConnect.Infrastructure;
 using CoConnect.Infrastructure.Auth;
 using CoConnect.Infrastructure.Queue;
@@ -7,7 +7,7 @@ using CoConnect.Infrastructure.QueryRouting;
 using CoConnect.Infrastructure.Service;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
-using Persistence;
+using CoConnect.Persistence;
 using SimpleBus;
 
 namespace CoConnect
