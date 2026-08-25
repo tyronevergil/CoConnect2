@@ -1,0 +1,28 @@
+{
+  "version": "0.2.1",
+  "defaults": {},
+  "configurations": [
+    {
+      "type": "executable",
+      "name": "CoConnect (dotnet run)",
+      "project": "CoConnect\\CoConnect.csproj",
+      "program": "dotnet",
+      "args": "run --project CoConnect\\CoConnect.csproj",
+      "cwd": "${workspaceRoot}",
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
+    {
+      "type": "executable",
+      "name": "CoConnect (dotnet watch)",
+      "project": "CoConnect\\CoConnect.csproj",
+      "program": "dotnet",
+      "args": "watch --project CoConnect\\CoConnect.csproj run",
+      "cwd": "${workspaceRoot}",
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  ]
+}
